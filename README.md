@@ -74,7 +74,7 @@ The script below can be used to get the public key from the private key. This is
 wallet and to test the encryption and decryption of the QR code.
 
 ```
-npx hardhat get-public-key-from-private-key --private-key 0xea65393cae28be329585db0afe94d08eb560fc04cd42c4570ec971ba31ab601c
+npx hardhat get-public-key-from-private-key --private-key PRIVATE_KEY_OF_WALLET
 ```
 
 ---
@@ -96,7 +96,7 @@ The script below can be used to redeem a ticket and encrypt the QR code. The QR 
 the ticket owner. publicKeyOfOwner
 
 ```
- npx hardhat redeem-ticket-and-encrypt-qr --token-id 2 --public-key-of-owner 98f87d2085300ef8ae7dcd5a03f9dff06a32676c7e6b32fee2958008a317ffbd74ddb30bed6f530da3f9bf188004b7245a33492e881c99d094be9adbc5fe650c
+ npx hardhat redeem-ticket-and-encrypt-qr --token-id 7 --public-key-of-owner PUBLIC_KEY_OF_WALLET
 ```
 
 ---
