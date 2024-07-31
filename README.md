@@ -85,7 +85,7 @@ The script below can be used to mint a ticket and encrypt the QR code. The QR co
 key.
 
 ```
-npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x8971bd2afa27c06961c500628643e2ed71399e32 --event-index 2 --ipfs-name qrcodez
+npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x366B5DCA2221fc97456079fBb4f4B61C16C523AA --event-index 2 --ipfs-name qrcodez
 ```
 
 ---

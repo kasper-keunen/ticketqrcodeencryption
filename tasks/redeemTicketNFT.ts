@@ -6,7 +6,7 @@ import {
   getSignedUrlForUpload,
   fetchFromIPFS,
   decryptData,
-  saveDecryptedFile,
+  saveFileToFolder,
   redeemTicket,
 } from "./scripts";
 import EthCrypto from "eth-crypto";
@@ -71,34 +71,27 @@ task("redeem-ticket-and-encrypt-qr", "Redeem a ticket and encrypt the image with
       const decryptedData = await decryptData(ticketInfoData.toString(), privateKeyProtocol);
 
       const pathDecryped_ = `./files/redeemed/redeemed-nft-index:${tokenId}.png`;
-      saveDecryptedFile(decryptedData, pathDecryped_);
-
-      const encryptedData = await encryptData(decryptedData, publicKeyTicketOwner);
+      saveFileToFolder(decryptedData, pathDecryped_);
 
       const nameRedeemed = `redeemed-nft-index:${tokenId}:redeemer:${ownerAddress}:redeemed-at:`
 
       const fileNameIPFS = `${nameRedeemed}${Date.now()}.png`
+      console.log("fileNameIPFS", fileNameIPFS);
+
+      const imageData = readImage(pathDecryped_);
+      const base64ImageData = convertImageToBase64(imageData);
+      const encryptedDataEncrypted = await encryptData(base64ImageData, publicKeyTicketOwner);
 
       const signedUrl = await getSignedUrlForUpload(fileNameIPFS, "image/png");
-      const ipfsCid = await uploadToS3(signedUrl, Buffer.from(encryptedData));
+      const ipfsCid = await uploadToS3(signedUrl, Buffer.from(encryptedDataEncrypted));
 
-      const ticketInfoData2 = await fetchFromIPFS(ipfsCid);
-      const decryptedData2 = await decryptData(ticketInfoData2.toString(), privateKeyProtocol);
+      const pathEncrypted = `./files/redeemed/encrypted/${fileNameIPFS}`;
 
-      const pathDecryped2_ = `./files/redeemed/encrypted/${fileNameIPFS}`;
+      // save the saveFileToFolder - to check if the decryption was successfull
+      saveFileToFolder(encryptedDataEncrypted, pathEncrypted);
 
-      // save the saveDecryptedFile - to check if the decryption was successfull
-      saveDecryptedFile(decryptedData2, pathDecryped2_);
-
-      // const imageData = readImage(qrPath);
-      // const base64ImageData = convertImageToBase64(imageData);
-      // const encryptedData = await encryptData(base64ImageData, publicKeyTicketOwner);
-
-      // const signedUrl = await getSignedUrlForUpload(fileNameFileBase, "image/png");
-      // console.log("signedUrl", signedUrl);
-      // await uploadToS3(signedUrl, Buffer.from(encryptedData));
-
-      // await redeemTicket(tokenId, ipfsCid, providerUrl, privateKey);
+      // note would also be fine for the user to pay for gas
+      await redeemTicket(tokenId, ipfsCid, RPC_BASE_URL, privateKeyDeployer);
 
     } catch (error) {
       console.error("Error:", error);

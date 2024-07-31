@@ -36,7 +36,7 @@ export const convertImageToBase64 = (imageData: Buffer): string => {
   return imageData.toString('base64');
 };
 
-export const saveDecryptedFile = (data: string, filePath: string): void => {
+export const saveFileToFolder = (data: string, filePath: string): void => {
   const buffer = Buffer.from(data, 'base64');
   fs.writeFileSync(filePath, buffer);
   console.log(`File saved to ${filePath}`);
@@ -134,11 +134,7 @@ export const mintTicket = async (addressRecipient: string, ipfsHashURL: string, 
 export const redeemTicket = async (tokenId: number, ipfsPath: string, providerUrl: string, privateKey: string) => {
   const provider = new ethers.JsonRpcProvider(providerUrl);
 
-  if (!PRIVATE_KEY_OF_PROTOCOL) {
-    throw new Error("Private key is undefined");
-  }
-
-  const wallet = new ethers.Wallet(PRIVATE_KEY_OF_PROTOCOL, provider)
+  const wallet = new ethers.Wallet(privateKey, provider)
 
   const abi = [
     "function redeemConditionalTicket(uint256 tokenId, string memory encryptedPost) external",

@@ -7,7 +7,7 @@ import {
   fetchFromIPFS,
   mintTicket,
   decryptData,
-  saveDecryptedFile,
+  saveFileToFolder,
 } from "./scripts";
 import { task } from "hardhat/config";
 import { ethers } from "ethers";
@@ -65,13 +65,12 @@ task("mint-ticket-and-encrypt-qr", "Mint a ticket and encrypt the image with the
       const signedUrl = await getSignedUrlForUpload(fileNameIPFS, "image/png");
       const ipfsCid = await uploadToS3(signedUrl, Buffer.from(encryptedData));
 
+      // note this is redundant step mainly to register the QR codes that have been uploaded to the IPFS in encrypted form
       const ticketInfoData = await fetchFromIPFS(ipfsCid);
       const decryptedData = await decryptData(ticketInfoData.toString(), privateKeyProtocol);
-
       const pathDecryped_ = `./files/decrypted/${fileNameIPFS}`;
-
-      // save the saveDecryptedFile - to check if the decryption was successfull
-      saveDecryptedFile(decryptedData, pathDecryped_);
+      // save the saveFileToFolder - to check if the decryption was successfull
+      saveFileToFolder(decryptedData, pathDecryped_);
 
       await mintTicket(addressRecipient, ipfsCid, providerUrl, privateKeyDeployer, eventIndex);
 
