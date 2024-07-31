@@ -4,7 +4,7 @@ import EthCrypto from "eth-crypto";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import axios from "axios";
-import { CONTRACT_ADDRESS, PRIVATE_KEY_OF_PROTOCOL } from "./CONSTANTS";
+import { CONTRACT_ADDRESS } from "./CONSTANTS";
 import dotenv from "dotenv";
 // Load environment variables from .env file
 dotenv.config();
@@ -79,7 +79,6 @@ export const fetchFromIPFS = async (cid: string): Promise<Buffer> => {
 
   return Buffer.from(response.data);
 };
-
 
 
 // Function to upload encrypted data to S3 via the signed URL

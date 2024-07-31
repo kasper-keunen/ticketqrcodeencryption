@@ -96,7 +96,7 @@ The script below can be used to redeem a ticket and encrypt the QR code. The QR 
 the ticket owner. publicKeyOfOwner
 
 ```
- npx hardhat redeem-ticket-and-encrypt-qr --token-id 7 --public-key-of-owner PUBLIC_KEY_OF_WALLET
+ npx hardhat redeem-ticket-and-encrypt-qr --token-id 3 --public-key-of-owner PUBLIC_KEY_OF_WALLET
 ```
 
 ---
