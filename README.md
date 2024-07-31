@@ -8,6 +8,10 @@ the Ethereum public key to encrypt the QR code.
 
 ```
 yarn install
+forge install OpenZeppelin/openzeppelin-contracts@v4.8.3
+forge install chiru-labs/ERC721A@v4.2.3
+forge install limitbreakinc/creator-token-standards
+forge install dmfxyz/murky@40de6e80117f39cda69d71b07b7c824adac91b29
 ```
 
 #### Configuration
