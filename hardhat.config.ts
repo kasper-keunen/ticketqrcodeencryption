@@ -3,11 +3,9 @@ import "hardhat-deploy";
 import type { HardhatUserConfig } from "hardhat/config";
 import { vars } from "hardhat/config";
 import type { NetworkUserConfig } from "hardhat/types";
-import "./tasks/redeemTicketNFT.js";
-
+import "./tasks/redeemTicketNFT.ts";
+import "./tasks/mintTicket.ts";
 import "./tasks/accounts";
-import "./tasks/lock";
-
 import dotenv from "dotenv";
 
 // Load environment variables from .env file

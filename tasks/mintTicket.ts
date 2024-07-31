@@ -1,3 +1,14 @@
+import {
+  readImage,
+  encryptData,
+  uploadToS3,
+  convertImageToBase64,
+  getSignedUrlForUpload,
+  fetchFromIPFS,
+  mintTicket,
+  decryptData,
+  saveDecryptedFile,
+} from "./scripts";
 import { task } from "hardhat/config";
 import { ethers } from "ethers";
 import dotenv from "dotenv";
@@ -8,37 +19,25 @@ import {
 
 dotenv.config();
 
-const privateKeyProtocol = PRIVATE_KEY_DEPLOYER;
+const privateKeyProtocol = PRIVATE_KEY_OF_PROTOCOL;
+
+const privateKeyDeployer = PRIVATE_KEY_DEPLOYER;
 
 if (!privateKeyProtocol) {
-  throw new Error("Missing private key");
+  throw new Error("Missing private key x");
+}
+
+if (!privateKeyDeployer) {
+  throw new Error("Missing private key for deployer");
 }
 
 task("mint-ticket-and-encrypt-qr", "Mint a ticket and encrypt the image with the public key of the protocol")
-  .addParam("imagePath", "The path to the image file")
-  .addParam("address", "The address of the nft owner")
-  .addParam("fileName", "The file name")
+  .addParam("qrPath", "The path to the image file (without the .png extension)")
+  .addParam("addressRecipient", "The address of the nft owner")
+  .addParam("eventIndex", "The event index")
+  .addParam("ipfsName", "The name of the file in the ipfs")
   .setAction(async (taskArgs, hre) => {
     const publicKey = EthCrypto.publicKeyByPrivateKey(privateKeyProtocol);
-
-    //       struct TicketInfo {
-    //       TicketStatus status;
-    //       string ticketDescription;
-    //       string ticketMeta1;
-    //       string ticketMeta2;
-    //       uint32 eventIndex;
-    //       uint64 externalTokenId;
-    //       uint64 eventRoundId;
-    //       uint64 ticketPrice;
-    //   }
-
-    //   function returnTicketInfo(
-    //     uint256 tokenId
-    //   ) public view returns(TicketInfo memory) {
-    //   return ticketInfoStorage[tokenId];
-    // }
-
-    // function mintConditionalTicketSimple(address to, string memory encryptedPre, uint256 eventIndex) external;
 
     const provider = new ethers.JsonRpcProvider(RPC_BASE_URL);
 
@@ -51,42 +50,31 @@ task("mint-ticket-and-encrypt-qr", "Mint a ticket and encrypt the image with the
     const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, wallet);
 
     try {
-      const filePath = taskArgs.imagePath;
+      const qrPath = taskArgs.qrPath;
       const providerUrl = RPC_BASE_URL;
-      const tokenId = taskArgs.tokenId;
-      const fileName = taskArgs.fileName;
-      const nftOwnerPublicKey = taskArgs.nftOwnerPublicKey;
+      const addressRecipient = taskArgs.addressRecipient;
+      const eventIndex = taskArgs.eventIndex;
+      const ipfsName = taskArgs.ipfsName;
 
-      const ticketInfo = await contract.returnTicketInfo(tokenId);
-      console.log("ticketInfo", ticketInfo);
-
-      // Fetch the ticketInfo hash from IPFS
-      const ticketInfoHash = ticketInfo.ticketMeta1; // Assuming ticketMeta1 contains the IPFS hash
-      console.log("ticketInfoHash", ticketInfoHash);
-      const ticketInfoData = await fetchFromIPFS(ticketInfoHash);
-      console.log("Fetched ticketInfo data from IPFS:", ticketInfoData.toString());
-
-      const decryptedData = await decryptData(ticketInfoData.toString(), privateKey);
-      console.log("decryptedData", decryptedData);
-
-      // Construct the output path
-      const outputPath = `./files/qrcode${tokenId}.png`;
-
-
-
-
-      const imageData = readImage(filePath);
+      const imageData = readImage(qrPath + ".png");
       const base64ImageData = convertImageToBase64(imageData);
       const encryptedData = await encryptData(base64ImageData, publicKey);
 
-      const signedUrl = await getSignedUrlForUpload(fileName, "image/png");
-      console.log("signedUrl", signedUrl);
-      await uploadToS3(signedUrl, Buffer.from(encryptedData));
+      const fileNameIPFS = `${ipfsName}-${Date.now()}.png`;
 
-      // const ipfsCid = await pinToIPFS(Buffer.from(encryptedData));
-      // console.log("ipfsCid", ipfsCid);
+      const signedUrl = await getSignedUrlForUpload(fileNameIPFS, "image/png");
+      const ipfsCid = await uploadToS3(signedUrl, Buffer.from(encryptedData));
 
-      // await redeemTicket(tokenId, ipfsCid, providerUrl, privateKey);
+      const ticketInfoData = await fetchFromIPFS(ipfsCid);
+      const decryptedData = await decryptData(ticketInfoData.toString(), privateKeyProtocol);
+
+      const pathDecryped_ = `./files/decrypted/${fileNameIPFS}`;
+
+      // save the saveDecryptedFile - to check if the decryption was successfull
+      saveDecryptedFile(decryptedData, pathDecryped_);
+
+      await mintTicket(addressRecipient, ipfsCid, providerUrl, privateKeyDeployer, eventIndex);
+
     } catch (error) {
       console.error("Error:", error);
     }
