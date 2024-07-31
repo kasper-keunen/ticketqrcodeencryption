@@ -45,6 +45,8 @@ interface IConditionalTicketBurn {
 
     error TicketIsRedeemed(uint256 tokenId);
 
+    error NotHandler(address);
+
     event MinterAdded(address indexed minter, bool value);
 
     event TicketInvalidated(uint256 indexed tokenId);
@@ -53,17 +55,29 @@ interface IConditionalTicketBurn {
 
     event EventRoundCreated(uint256 indexed eventId, EventRoundInformation indexed info);
 
+    event HandlerSet(address indexed handler, bool value);
+
     // Functions
 
-    function mintConditionalTicketSimple(address to, string memory encryptedPre, uint256 eventIndex) external;
+    function mintConditionalTicketSimple(
+        address to,
+        string memory encryptedPre,
+        uint256 eventIndex
+    ) external returns (uint256 tokenId_);
 
-    function mintConditionalTicketNft(address to, string memory encryptedPre, TicketInfo memory ticketInfo) external;
+    function mintConditionalTicketNft(
+        address to,
+        string memory encryptedPre,
+        TicketInfo memory ticketInfo
+    ) external returns (uint256 tokenId_);
 
     function redeemConditionalTicket(uint256 tokenId, string memory encryptedPost) external;
 
     function invalidateConditionalTicket(uint256 tokenId) external;
 
-    function createRandomEvent() external;
+    function redeemConditionalTicketByProtocol(uint256 tokenId, string memory encryptedPost) external;
+
+    function createRandomEvent() external returns (uint256 eventId_);
 
     function createEventRound(
         uint256 startTime,
@@ -71,5 +85,5 @@ interface IConditionalTicketBurn {
         uint256 ticketPrice,
         uint256 maxTickets,
         uint256 maxTicketsPerAddress
-    ) external;
+    ) external returns (uint256 eventId_);
 }
