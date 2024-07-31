@@ -107,26 +107,6 @@ export const uploadToS3 = async (signedUrl: string, data: Buffer): Promise<strin
   return ipfsCid;
 };
 
-// // Function to pin data to IPFS using Filebase
-// export const pinToIPFS = async (data: Buffer): Promise<string> => {
-//   const apiKey = process.env.FB_API_KEY;
-//   const response = await axios.post("https://api.filebase.io/v1/ipfs", {
-//     file: data.toString('base64'),
-//     // Include any other required metadata here
-//   }, {
-//     headers: {
-//       "Content-Type": "application/json",
-//       "Authorization": `${apiKey}`, // Make sure to set your API key here
-//     },
-//   });
-
-//   if (response.status !== 200) {
-//     throw new Error(`Failed to pin to IPFS: ${response.statusText}`);
-//   }
-
-//   console.log("Pinned to IPFS. CID:", response.data.cid);
-//   return response.data.cid;
-// };
 
 export const mintTicket = async (addressRecipient: string, ipfsHashURL: string, providerUrl: string, privateKey: string, eventIndex: number) => {
   const provider = new ethers.JsonRpcProvider(providerUrl);

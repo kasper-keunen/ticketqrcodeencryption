@@ -6,6 +6,7 @@ import type { NetworkUserConfig } from "hardhat/types";
 import "./tasks/redeemTicketNFT.ts";
 import "./tasks/mintTicket.ts";
 import "./tasks/accounts";
+import "./tasks/publicKey";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
