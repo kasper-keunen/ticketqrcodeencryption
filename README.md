@@ -17,7 +17,7 @@ nftOwnerPublicKey
 ```
 
 ```
-npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x366B5DCA2221fc97456079fBb4f4B61C16C523AA --event-index 1 --ipfs-name qrcode
+npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x366B5DCA2221fc97456079fBb4f4B61C16C523AA --event-index 1 --ipfs-name qrcodez
 ```
 
 ### Keys
