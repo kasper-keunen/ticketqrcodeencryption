@@ -4,6 +4,34 @@ This repo is a proof of concept for the ticket QR code encryption and decryption
 ticket QR code encryption and decryption protocol. The repo uses IPFS to pin the QR code to the IPFS network and uses
 the Ethereum public key to encrypt the QR code.
 
+### Installation
+
+```
+yarn install
+```
+
+#### Configuration
+
+Create a .env file and add the following environment variables:
+
+```
+FB_API_KEY= FileBase API key
+FB_SECRET_ACCESS_KEY= FileBase secret access key
+FB_ACCESS_KEY_ID= FileBase access key id
+INFURA_API_KEY= Infura API key
+
+PK_3A= Private key of the protocol (used to derive public key and encrypt the QR code before redeem)
+PK_89= Private key of the ticket owner (used to derive public key and encrypt the QR code before redeem)
+PK_87= Private key of the protocol deployer (used to derive public key and encrypt the QR code before redeem)
+MNEMONIC=PK_3A
+
+```
+
+note: the public/private key of the 'ticket owner' in this repo is a placeholder, the actual public/private key of the
+ticket owner is derived from the private key of the wallet that is used to redeem the ticket.
+
+---
+
 ### Encryption flow on mint
 
 When a ticket is minted the following steps are taken:
