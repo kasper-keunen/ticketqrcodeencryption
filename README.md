@@ -74,7 +74,7 @@ The script below can be used to get the public key from the private key. This is
 wallet and to test the encryption and decryption of the QR code.
 
 ```
-npx hardhat get-public-key-from-private-key --private-key PRIVATE_KEY
+npx hardhat get-public-key-from-private-key --private-key 0xea65393cae28be329585db0afe94d08eb560fc04cd42c4570ec971ba31ab601c
 ```
 
 ---
@@ -85,7 +85,7 @@ The script below can be used to mint a ticket and encrypt the QR code. The QR co
 key.
 
 ```
-npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x366B5DCA2221fc97456079fBb4f4B61C16C523AA --event-index 1 --ipfs-name qrcodez
+npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x8971bd2afa27c06961c500628643e2ed71399e32 --event-index 2 --ipfs-name qrcodez
 ```
 
 ---
@@ -93,10 +93,10 @@ npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipi
 ### Redeeming a ticket with QR code
 
 The script below can be used to redeem a ticket and encrypt the QR code. The QR code is encrypted with the public key of
-the ticket owner.
+the ticket owner. publicKeyOfOwner
 
 ```
- npx hardhat redeem-ticket-and-encrypt-qr --qr-path ./files/qrcode --token-id 6 --file-name qrcode2.png --nft-owner-public-key 0x77fa13A68e0a8CA0e196c7B9B92f12d8a27Bce98
+ npx hardhat redeem-ticket-and-encrypt-qr --token-id 2 --public-key-of-owner 98f87d2085300ef8ae7dcd5a03f9dff06a32676c7e6b32fee2958008a317ffbd74ddb30bed6f530da3f9bf188004b7245a33492e881c99d094be9adbc5fe650c
 ```
 
 ---
@@ -110,7 +110,8 @@ Protocol public address: 0x3a4f2515212608443577a2ce55f66ea83b54b9bb Private key 
 #### Ticket owner public key
 
 Ticket owner public address: 0x8971bd2afa27c06961c500628643e2ed71399e32 Private key variable in .env: PK_NFT_OWNER
-PK_NFT_OWNER
+Public key:
+98f87d2085300ef8ae7dcd5a03f9dff06a32676c7e6b32fee2958008a317ffbd74ddb30bed6f530da3f9bf188004b7245a33492e881c99d094be9adbc5fe650c
 
 #### Protocol deployer public key
 

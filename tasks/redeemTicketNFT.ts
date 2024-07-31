@@ -22,6 +22,7 @@ dotenv.config();
 const privateKeyTicketOwner = PRIVATE_KEY_OF_NFT_OWNER;
 
 const privateKeyDeployer = PRIVATE_KEY_DEPLOYER;
+const privateKeyProtocol = PRIVATE_KEY_OF_PROTOCOL;
 
 if (!privateKeyTicketOwner) {
   throw new Error("Missing private key for ticket owner");
@@ -31,15 +32,18 @@ if (!privateKeyDeployer) {
   throw new Error("Missing private key for deployer");
 }
 
+if (!privateKeyProtocol) {
+  throw new Error("Missing private key for protocol");
+}
 
 task("redeem-ticket-and-encrypt-qr", "Redeem a ticket and encrypt the image with the public key of the nft owner")
-  .addParam("qrPath", "The path to the image file (without the .png extension)")
   .addParam("tokenId", "The tokenId")
-  .addParam("nftOwnerPublicKey", "The public key of the nft owner")
+  .addOptionalParam("publicKeyOfOwner", "The public key of the owner of the ticket")
   .setAction(async (taskArgs, hre) => {
     // note: in the DAPP the public key should be provided by the user when they burn/redeem the NFT as we cannot get the public key from the private key (as we do not have access to that) - neither are we able to get the public key from the public address
-    const publicKey = EthCrypto.publicKeyByPrivateKey(privateKeyTicketOwner);
-    console.log("publicKey of ticket owner", publicKey);
+    const publicKeyTicketOwner = taskArgs.publicKeyOfOwner || EthCrypto.publicKeyByPrivateKey(privateKeyTicketOwner);
+    console.log("publicKeyTicketOwner of ticket owner", publicKeyTicketOwner);
+
 
     const provider = new ethers.JsonRpcProvider(RPC_BASE_URL);
 
@@ -47,40 +51,52 @@ task("redeem-ticket-and-encrypt-qr", "Redeem a ticket and encrypt the image with
 
     const abi = [
       "function returnTicketInfo(uint256 tokenId) external view returns(uint8,string,string,string,uint32,uint64,uint64,uint64)",
-      "function encryptedDataPreRelease(uint256 tokenId) external view returns(string memory)"
+      "function encryptedDataPreRelease(uint256 tokenId) external view returns(string memory)",
+      "function ownerOf(uint256 tokenId) external view returns (address)"
     ];
 
     const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, wallet);
 
     try {
-      const qrPath = taskArgs.qrPath;
       const tokenId = taskArgs.tokenId;
-      const nftOwnerPublicKey = taskArgs.nftOwnerPublicKey;
 
-      // const ticketInfo = await contract.returnTicketInfo(tokenId);
-      // console.log("ticketInfo", ticketInfo);
+      const ownerAddress = await contract.ownerOf(tokenId);
+      console.log("ownerAddress", ownerAddress);
 
-      // // Fetch the ticketInfo hash from IPFS
-      // const ticketInfoHash = ticketInfo.ticketMeta1; // Assuming ticketMeta1 contains the IPFS hash
-      // console.log("ticketInfoHash", ticketInfoHash);
+      const hashIPFS = await contract.encryptedDataPreRelease(tokenId);
+      console.log("hashIPFS", hashIPFS);
 
-      // const ticketInfoData = await fetchFromIPFS(ticketInfoHash);
-      // console.log("Fetched ticketInfo data from IPFS:", ticketInfoData.toString());
+      const ticketInfoData = await fetchFromIPFS(hashIPFS);
+      console.log("Fetched ticketInfo data from IPFS:", ticketInfoData.toString());
+      const decryptedData = await decryptData(ticketInfoData.toString(), privateKeyProtocol);
 
-      // const decryptedData = await decryptData(ticketInfoData.toString(), privateKey);
-      // console.log("decryptedData", decryptedData);
+      const pathDecryped_ = `./files/redeemed/redeemed-nft-index:${tokenId}.png`;
+      saveDecryptedFile(decryptedData, pathDecryped_);
 
-      // Construct the output path
-      const fileNameFileBase = `qrcode${tokenId}-${Date.now()}.png`;
-      console.log("File name: %s.", fileNameFileBase);
+      const encryptedData = await encryptData(decryptedData, publicKeyTicketOwner);
 
-      const imageData = readImage(qrPath);
-      const base64ImageData = convertImageToBase64(imageData);
-      const encryptedData = await encryptData(base64ImageData, publicKey);
+      const nameRedeemed = `redeemed-nft-index:${tokenId}:redeemer:${ownerAddress}:redeemed-at:`
 
-      const signedUrl = await getSignedUrlForUpload(fileNameFileBase, "image/png");
-      console.log("signedUrl", signedUrl);
-      await uploadToS3(signedUrl, Buffer.from(encryptedData));
+      const fileNameIPFS = `${nameRedeemed}${Date.now()}.png`
+
+      const signedUrl = await getSignedUrlForUpload(fileNameIPFS, "image/png");
+      const ipfsCid = await uploadToS3(signedUrl, Buffer.from(encryptedData));
+
+      const ticketInfoData2 = await fetchFromIPFS(ipfsCid);
+      const decryptedData2 = await decryptData(ticketInfoData2.toString(), privateKeyProtocol);
+
+      const pathDecryped2_ = `./files/redeemed/encrypted/${fileNameIPFS}`;
+
+      // save the saveDecryptedFile - to check if the decryption was successfull
+      saveDecryptedFile(decryptedData2, pathDecryped2_);
+
+      // const imageData = readImage(qrPath);
+      // const base64ImageData = convertImageToBase64(imageData);
+      // const encryptedData = await encryptData(base64ImageData, publicKeyTicketOwner);
+
+      // const signedUrl = await getSignedUrlForUpload(fileNameFileBase, "image/png");
+      // console.log("signedUrl", signedUrl);
+      // await uploadToS3(signedUrl, Buffer.from(encryptedData));
 
       // await redeemTicket(tokenId, ipfsCid, providerUrl, privateKey);
 
