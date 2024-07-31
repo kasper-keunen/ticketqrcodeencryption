@@ -75,5 +75,12 @@
     "task:withdraw": "hardhat task:withdraw",
     "test": "hardhat test",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.621.0",
+    "@aws-sdk/s3-request-presigner": "^3.621.0",
+    "dotenv": "^16.4.5",
+    "eth-crypto": "^2.6.0",
+    "ipfs-car": "^1.2.0"
   }
 }

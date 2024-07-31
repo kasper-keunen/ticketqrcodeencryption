@@ -3,14 +3,19 @@ import "hardhat-deploy";
 import type { HardhatUserConfig } from "hardhat/config";
 import { vars } from "hardhat/config";
 import type { NetworkUserConfig } from "hardhat/types";
+import "./tasks/redeemTicketNFT.js";
 
 import "./tasks/accounts";
 import "./tasks/lock";
 
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 // Run 'npx hardhat vars setup' to see the list of variables that need to be set
 
-const mnemonic: string = vars.get("MNEMONIC");
-const infuraApiKey: string = vars.get("INFURA_API_KEY");
+const mnemonic: string = process.env.MNEMONIC || "";
+const infuraApiKey: string = process.env.INFURA_API_KEY || "";
 
 const chainIds = {
   "arbitrum-mainnet": 42161,
