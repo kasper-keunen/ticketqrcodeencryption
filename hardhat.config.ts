@@ -7,6 +7,7 @@ import "./tasks/redeemTicketNFT.ts";
 import "./tasks/mintTicket.ts";
 import "./tasks/publicKey";
 import dotenv from "dotenv";
+import "@nomicfoundation/hardhat-foundry";
 
 // Load environment variables from .env file
 dotenv.config();

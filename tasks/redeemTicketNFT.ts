@@ -20,7 +20,6 @@ import {
 dotenv.config();
 
 const privateKeyTicketOwner = PRIVATE_KEY_OF_NFT_OWNER;
-
 const privateKeyDeployer = PRIVATE_KEY_DEPLOYER;
 const privateKeyProtocol = PRIVATE_KEY_OF_PROTOCOL;
 
@@ -43,7 +42,6 @@ task("redeem-ticket-and-encrypt-qr", "Redeem a ticket and encrypt the image with
     // note: in the DAPP the public key should be provided by the user when they burn/redeem the NFT as we cannot get the public key from the private key (as we do not have access to that) - neither are we able to get the public key from the public address
     const publicKeyTicketOwner = taskArgs.publicKeyOfOwner || EthCrypto.publicKeyByPrivateKey(privateKeyTicketOwner);
     console.log("publicKeyTicketOwner of ticket owner", publicKeyTicketOwner);
-
 
     const provider = new ethers.JsonRpcProvider(RPC_BASE_URL);
 

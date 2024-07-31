@@ -39,16 +39,6 @@ task("mint-ticket-and-encrypt-qr", "Mint a ticket and encrypt the image with the
   .setAction(async (taskArgs, hre) => {
     const publicKey = EthCrypto.publicKeyByPrivateKey(privateKeyProtocol);
 
-    const provider = new ethers.JsonRpcProvider(RPC_BASE_URL);
-
-    const wallet = new ethers.Wallet(privateKeyProtocol, provider);
-
-    const abi = [
-      "function mintConditionalTicketSimple(address to, string memory encryptedPre, uint256 eventIndex) external"
-    ];
-
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, wallet);
-
     try {
       const qrPath = taskArgs.qrPath;
       const providerUrl = RPC_BASE_URL;
