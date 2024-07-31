@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.4;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -10,6 +10,7 @@ contract ConditionalTicketBurn is IConditionalTicketBurn, Ownable, ERC721("Condi
     using EnumerableSet for EnumerableSet.UintSet;
 
     uint256 public tokenIdCounter;
+
     uint256 public eventIdCounter;
 
     // eventId => ticket tokenIds
@@ -32,60 +33,6 @@ contract ConditionalTicketBurn is IConditionalTicketBurn, Ownable, ERC721("Condi
     // tokenId => ticket info
     mapping(uint256 => TicketInfo) public ticketInfoStorage;
 
-    // enum TicketStatus {
-    //     NONE, // nft does not exist
-    //     ACTIVE_VALID, // nft can be moved
-    //     LOCKED, // nft cannot be moved until the game/match is resovled
-    //     REDEEMED, // nft cannot be moved forever as the user has redeemed the nft for the underlying data
-    //     INVALIDATED // nft cannot be moved as the user has lost the underlying data
-    // }
-
-    // event TicketRedeemed(uint256 indexed tokenId, TicketInfo indexed info, string indexed encryptedPost);
-
-    // event HandlerSet(address indexed handler, bool value);
-
-    // struct EventRoundInformation {
-    //     uint256 roundId;
-    //     uint256 startTime;
-    //     uint256 endTime;
-    //     uint256 ticketPrice;
-    //     uint256 maxTickets;
-    //     uint256 maxTicketsPerAddress;
-    // }
-
-    // struct TicketInfo {
-    //     TicketStatus status;
-    //     string ticketDescription;
-    //     string ticketMeta1;
-    //     string ticketMeta2;
-    //     uint32 eventIndex;
-    //     uint64 externalTokenId;
-    //     uint64 eventRoundId;
-    //     uint64 ticketPrice;
-    // }
-
-    // error NotMinter(address);
-
-    // error NotOwner(address);
-
-    // error TicketNotActive(uint256 tokenId);
-
-    // error TicketIsLocked(uint256 tokenId);
-
-    // error TicketDoesNotExist(uint256 tokenId);
-
-    // error TicketIsRedeemed(uint256 tokenId);
-
-    // error NotHandler(address);
-
-    // event MinterAdded(address indexed minter, bool value);
-
-    // event TicketInvalidated(uint256 indexed tokenId);
-
-    // event TicketMinted(uint256 indexed tokenId, address indexed to, TicketInfo indexed info);
-
-    // event EventRoundCreated(uint256 indexed eventId, EventRoundInformation indexed info);
-
     constructor(address _owner) Ownable() {
         _transferOwnership(_owner);
     }
@@ -106,7 +53,7 @@ contract ConditionalTicketBurn is IConditionalTicketBurn, Ownable, ERC721("Condi
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "www.parlaytix.xyz/ticket/";
+        return "www.testing.nl";
     }
 
     function _mintToken(uint256 _tokenId, address _recipient) internal returns (uint256) {
