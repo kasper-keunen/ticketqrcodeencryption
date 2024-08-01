@@ -79,6 +79,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.621.0",
     "@aws-sdk/s3-request-presigner": "^3.621.0",
+    "@limitbreak/creator-token-standards": "^3.0.0",
     "@nomicfoundation/hardhat-foundry": "^1.1.2",
     "dotenv": "^16.4.5",
     "eth-crypto": "^2.6.0",
