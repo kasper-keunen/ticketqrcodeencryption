@@ -130,7 +130,24 @@ export const mintTicket = async (addressRecipient: string, ipfsHashURL: string, 
 }
 
 // Function to call the smart contract
-export const redeemTicket = async (tokenId: number, ipfsPath: string, providerUrl: string, privateKey: string) => {
+export const redeemTicketByProtocol = async (tokenId: number, ipfsPath: string, providerUrl: string, privateKey: string) => {
+  const provider = new ethers.JsonRpcProvider(providerUrl);
+
+  const wallet = new ethers.Wallet(privateKey, provider);
+
+  const abi = [
+    "function redeemConditionalTicketByProtocol(uint256 tokenId, string memory encryptedPost) external",
+  ];
+
+  const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, wallet);
+
+  const tx = await contract.redeemConditionalTicketByProtocol(tokenId, ipfsPath);
+  await tx.wait();
+  console.log("Transaction successful:", tx.hash);
+};
+
+// Function to call the smart contract
+export const redeemTicketByOwner = async (tokenId: number, ipfsPath: string, providerUrl: string, privateKey: string) => {
   const provider = new ethers.JsonRpcProvider(providerUrl);
 
   const wallet = new ethers.Wallet(privateKey, provider)

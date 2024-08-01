@@ -33,6 +33,12 @@ contract ConditionalTicketBurn is IConditionalTicketBurn, Ownable, ERC721("Condi
     // tokenId => ticket info
     mapping(uint256 => TicketInfo) public ticketInfoStorage;
 
+    mapping(uint256 => address) public redeemerAddress;
+
+    function returnRedeemerAddress(uint256 tokenId) public view returns (address) {
+        return redeemerAddress[tokenId];
+    }
+
     constructor(address _owner) Ownable() {
         _transferOwnership(_owner);
     }
@@ -132,6 +138,7 @@ contract ConditionalTicketBurn is IConditionalTicketBurn, Ownable, ERC721("Condi
         ticketInfoStorage[tokenId] = ticketInfo_;
         encryptedDataPostRelease[tokenId] = encryptedPost;
         _burn(tokenId);
+        redeemerAddress[tokenId] = msg.sender;
         emit TicketRedeemed(tokenId, ticketInfo_, encryptedPost);
     }
 
@@ -141,10 +148,12 @@ contract ConditionalTicketBurn is IConditionalTicketBurn, Ownable, ERC721("Condi
     ) public override onlyHandler {
         require(tokenId <= tokenIdCounter, "Token ID does not exist");
         TicketInfo memory ticketInfo_ = ticketInfoStorage[tokenId];
+        address owner_ = ownerOf(tokenId);
         ticketInfo_.status = TicketStatus.REDEEMED;
         ticketInfoStorage[tokenId] = ticketInfo_;
         encryptedDataPostRelease[tokenId] = encryptedPost;
         _burn(tokenId);
+        redeemerAddress[tokenId] = owner_;
         emit TicketRedeemed(tokenId, ticketInfo_, encryptedPost);
     }
 

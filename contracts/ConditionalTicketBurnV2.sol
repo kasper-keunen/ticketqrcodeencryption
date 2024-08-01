@@ -41,6 +41,12 @@ contract ConditionalTicketBurnV2 is
     // tokenId => ticket info
     mapping(uint256 => TicketInfo) public ticketInfoStorage;
 
+    mapping(uint256 => address) public redeemerAddress;
+
+    function returnRedeemerAddress(uint256 tokenId) public view returns (address) {
+        return redeemerAddress[tokenId];
+    }
+
     constructor(
         address _owner,
         uint256 royaltyFeeNumerator_,
@@ -191,6 +197,7 @@ contract ConditionalTicketBurnV2 is
         ticketInfo_.status = TicketStatus.REDEEMED;
         ticketInfoStorage[tokenId] = ticketInfo_;
         encryptedDataPostRelease[tokenId] = encryptedPost;
+        redeemerAddress[tokenId] = msg.sender;
         _burn(tokenId);
         emit TicketRedeemed(tokenId, ticketInfo_, encryptedPost);
     }
@@ -201,9 +208,11 @@ contract ConditionalTicketBurnV2 is
     ) public override onlyHandler {
         require(tokenId <= tokenIdCounter, "Token ID does not exist");
         TicketInfo memory ticketInfo_ = ticketInfoStorage[tokenId];
+        address owner_ = ownerOf(tokenId);
         ticketInfo_.status = TicketStatus.REDEEMED;
         ticketInfoStorage[tokenId] = ticketInfo_;
         encryptedDataPostRelease[tokenId] = encryptedPost;
+        redeemerAddress[tokenId] = owner_;
         _burn(tokenId);
         emit TicketRedeemed(tokenId, ticketInfo_, encryptedPost);
     }

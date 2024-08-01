@@ -10,26 +10,13 @@ import {
   saveFileToFolder,
 } from "./scripts";
 import { task } from "hardhat/config";
-import { ethers } from "ethers";
 import dotenv from "dotenv";
 import EthCrypto from "eth-crypto";
 import {
-  CONTRACT_ADDRESS, RPC_BASE_URL, PRIVATE_KEY_OF_PROTOCOL, PRIVATE_KEY_DEPLOYER
+  RPC_BASE_URL, PRIVATE_KEY_OF_PROTOCOL, PRIVATE_KEY_DEPLOYER
 } from "./CONSTANTS";
 
 dotenv.config();
-
-const privateKeyProtocol = PRIVATE_KEY_OF_PROTOCOL;
-
-const privateKeyDeployer = PRIVATE_KEY_DEPLOYER;
-
-if (!privateKeyProtocol) {
-  throw new Error("Missing private key x");
-}
-
-if (!privateKeyDeployer) {
-  throw new Error("Missing private key for deployer");
-}
 
 task("mint-ticket-and-encrypt-qr", "Mint a ticket and encrypt the image with the public key of the protocol")
   .addParam("qrPath", "The path to the image file (without the .png extension)")
@@ -37,7 +24,22 @@ task("mint-ticket-and-encrypt-qr", "Mint a ticket and encrypt the image with the
   .addParam("eventIndex", "The event index")
   .addParam("ipfsName", "The name of the file in the ipfs")
   .setAction(async (taskArgs, hre) => {
+
+    const privateKeyProtocol = PRIVATE_KEY_OF_PROTOCOL;
+
+    const privateKeyDeployer = PRIVATE_KEY_DEPLOYER;
+
+    if (!privateKeyProtocol) {
+      throw new Error("Missing private key x");
+    }
+
+    if (!privateKeyDeployer) {
+      throw new Error("Missing private key for deployer");
+    }
+
     const publicKey = EthCrypto.publicKeyByPrivateKey(privateKeyProtocol);
+    const addressProtocol = EthCrypto.publicKey.toAddress(publicKey);
+    console.log("address of protocol", addressProtocol);
 
     try {
       const qrPath = taskArgs.qrPath;
@@ -50,15 +52,19 @@ task("mint-ticket-and-encrypt-qr", "Mint a ticket and encrypt the image with the
       const base64ImageData = convertImageToBase64(imageData);
       const encryptedData = await encryptData(base64ImageData, publicKey);
 
-      const fileNameIPFS = `${ipfsName}-${Date.now()}.png`;
+      // filename is the file name + time of encryption + public address used to encrypt
+      const fileNameIPFS = `${ipfsName}-${Date.now()}-${addressProtocol}.png`;
 
       const signedUrl = await getSignedUrlForUpload(fileNameIPFS, "image/png");
       const ipfsCid = await uploadToS3(signedUrl, Buffer.from(encryptedData));
 
       // note this is redundant step mainly to register the QR codes that have been uploaded to the IPFS in encrypted form
       const ticketInfoData = await fetchFromIPFS(ipfsCid);
+
       const decryptedData = await decryptData(ticketInfoData.toString(), privateKeyProtocol);
+
       const pathDecryped_ = `./files/decrypted/${fileNameIPFS}`;
+
       // save the saveFileToFolder - to check if the decryption was successfull
       saveFileToFolder(decryptedData, pathDecryped_);
 

@@ -6,6 +6,7 @@ import type { NetworkUserConfig } from "hardhat/types";
 import "./tasks/redeemTicketNFT.ts";
 import "./tasks/mintTicket.ts";
 import "./tasks/publicKey";
+import "./tasks/decryptTicketIPFS.ts";
 import dotenv from "dotenv";
 import "@nomicfoundation/hardhat-foundry";
 

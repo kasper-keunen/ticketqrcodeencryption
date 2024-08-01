@@ -89,7 +89,10 @@ The script below can be used to mint a ticket and encrypt the QR code. The QR co
 key.
 
 ```
+npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x8971bd2afa27c06961c500628643e2ed71399e32 --event-index 2 --ipfs-name qrcodez
+
 npx hardhat mint-ticket-and-encrypt-qr --qr-path ./files/qrcode --address-recipient 0x366B5DCA2221fc97456079fBb4f4B61C16C523AA --event-index 2 --ipfs-name qrcodez
+
 ```
 
 ---
@@ -100,7 +103,21 @@ The script below can be used to redeem a ticket and encrypt the QR code. The QR 
 the ticket owner. publicKeyOfOwner
 
 ```
- npx hardhat redeem-ticket-and-encrypt-qr --token-id 3 --public-key-of-owner PUBLIC_KEY_OF_WALLET
+ npx hardhat redeem-ticket-and-encrypt-qr --token-id 1 --public-key-of-owner 98f87d2085300ef8ae7dcd5a03f9dff06a32676c7e6b32fee2958008a317ffbd74ddb30bed6f530da3f9bf188004b7245a33492e881c99d094be9adbc5fe650c --private-key-owner PK_OWNER_OPTIONAL
+```
+
+### Decrypting the QR code of redeemed ticket
+
+When a user redeems a ticket the QR code is encrypted with the public key of the ticket owner. The QR code is then
+encrypted and stored on IPFS. In a DAPP the user will be able to download or have the QR code emailed to them. The
+encrypted QR code is stored as backup in case the user loses the QR code locally. Only the user that redeemed the ticket
+can decrypt the QR code.
+
+The following script can be used to decrypt the QR code.
+
+```
+npx hardhat decrypt-ticket-ipfs --token-id 1 --private-key-of-owner PK_OF_REDEEMER
+
 ```
 
 ---
@@ -131,3 +148,7 @@ PK_PROTOCOL_DEPLOYER
 - Typescript
 - Ethers
 - IPFS
+
+```
+
+```
