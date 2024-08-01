@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import { IConditionalTicketBurnV2 } from "./interfaces/IConditionalTicketBurnV2.sol";
 import "@limitbreak/creator-token-standards/src/access/OwnableBasic.sol";
 import "@limitbreak/creator-token-standards/src/erc721c/ERC721C.sol";
-import "@limitbreak/creator-token-standards/src/programmable-royalties/MinterRoyaltiesReassignableRightsNFT.sol";
+import "./abstract/MinterRoyaltiesReassignableRightsNFTCustom.sol";
 
 contract ConditionalTicketBurnV2 is
     IConditionalTicketBurnV2,
     OwnableBasic,
     ERC721C,
-    MinterRoyaltiesReassignableRightsNFT
+    MinterRoyaltiesReassignableRightsNFTCustom,
+    ERC2981
 {
     using EnumerableSet for EnumerableSet.UintSet;
 
@@ -47,22 +49,47 @@ contract ConditionalTicketBurnV2 is
         string memory symbol_
     )
         ERC721OpenZeppelin(name_, symbol_)
-        MinterRoyaltiesReassignableRightsNFT(royaltyFeeNumerator_, royaltyRightsNFTReference_)
+        MinterRoyaltiesReassignableRightsNFTCustom(royaltyFeeNumerator_, royaltyRightsNFTReference_)
     {
         _transferOwnership(_owner);
     }
 
-    // function setTransferValidator
-
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC721C, MinterRoyaltiesReassignableRightsNFT) returns (bool) {
+    ) public view virtual override(ERC721C, ERC2981, MinterRoyaltiesReassignableRightsNFTCustom) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
     modifier onlyHandler() {
         if (!isHandler[msg.sender]) revert NotHandler(msg.sender);
         _;
+    }
+
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) public view override(ERC2981, IERC2981) returns (address receiver, uint256 royaltyAmount) {
+        (receiver, royaltyAmount) = super.royaltyInfo(tokenId, salePrice);
+
+        try royaltyRightsNFT.ownerOf(tokenId) returns (address rightsTokenOwner) {
+            receiver = rightsTokenOwner;
+        } catch {
+            receiver = owner();
+        }
+
+        return (receiver, royaltyAmount);
+    }
+
+    function setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) public onlyHandler {
+        super._setTokenRoyalty(tokenId, receiver, feeNumerator);
+    }
+
+    function setDefaultRoyalty(address receiver, uint96 feeNumerator) public onlyHandler {
+        super._setDefaultRoyalty(receiver, feeNumerator);
+    }
+
+    function deleteTokenRoyalty(uint256 tokenId) public onlyHandler {
+        super._resetTokenRoyalty(tokenId);
     }
 
     /**
@@ -73,6 +100,16 @@ contract ConditionalTicketBurnV2 is
     function addMinter(address minter, bool value) public onlyOwner {
         isMinter[minter] = value;
         emit MinterAdded(minter, value);
+    }
+
+    function _mint(address to, uint256 tokenId) internal virtual override {
+        _onMinted(to, tokenId);
+        super._mint(to, tokenId);
+    }
+
+    function _burn(uint256 tokenId) internal virtual override {
+        super._burn(tokenId);
+        _onBurned(tokenId);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
